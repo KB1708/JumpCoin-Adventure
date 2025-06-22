@@ -14,4 +14,31 @@ body {
   display: block;
   margin: 0 auto;
   border: 2px solid #333;
+}
+.overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.8);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  font-size: 2em;
+}
+.overlay button {
+  margin-top: 20px;
+  font-size: 1em;
+  padding: 10px 30px;
+  border: none;
+  border-radius: 8px;
+  background: #ffcc00;
+  color: #222;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+.overlay button:hover {
+  background: #ffe066;
 } 
