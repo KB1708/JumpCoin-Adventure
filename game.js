@@ -413,5 +413,5 @@ window.onload = function() {
 
 // Add spikes on top of some platforms for all levels
 levels[0].spikes.push({ x: 220, y: 280, width: 40, height: 20 });
-levels[1].spikes.push({ x: 320, y: 240, width: 40, height: 20 }, { x: 670, y: 320, width: 40, height: 20 });
+levels[1].spikes.push({ x: 320, y: 240, width: 40, height: 20 }, { x: 650, y: 320, width: 40, height: 20 });
 levels[2].spikes.push({ x: 400, y: 180, width: 40, height: 20 }, { x: 700, y: 300, width: 40, height: 20 }); 
