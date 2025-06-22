@@ -66,6 +66,9 @@ class Player {
 
     // Move horizontally
     this.x += this.vx * dt;
+    // Prevent moving outside canvas horizontally
+    if (this.x < 0) this.x = 0;
+    if (this.x + this.width > canvas.width) this.x = canvas.width - this.width;
     // Horizontal collision with platforms
     for (let plat of platforms) {
       if (isColliding(this, plat)) {
@@ -108,53 +111,165 @@ const levels = [
   {
     platforms: [
       { x: 0, y: 400, width: 800, height: 50 },
-      { x: 200, y: 300, width: 100, height: 20 },
-      { x: 400, y: 250, width: 120, height: 20 }
+      { x: 180, y: 300, width: 120, height: 20 },
+      { x: 450, y: 250, width: 100, height: 20 }
     ],
     coins: [
-      { x: 220, y: 270, width: 20, height: 20, collected: false },
-      { x: 420, y: 220, width: 20, height: 20, collected: false },
+      { x: 190, y: 270, width: 20, height: 20, collected: false },
+      { x: 490, y: 220, width: 20, height: 20, collected: false },
       { x: 600, y: 370, width: 20, height: 20, collected: false }
     ],
     enemies: [
-      { x: 500, y: 370, width: 40, height: 30, vx: 50, dir: 1 }
+      { x: 500, y: 370, width: 40, height: 30, vx: 50, dir: 1, minX: 400, maxX: 760 }
+    ],
+    spikes: [
+      { x: 380, y: 380, width: 40, height: 20 },
+      { x: 680, y: 380, width: 40, height: 20 }
     ],
     destination: { x: 750, y: 350, width: 40, height: 50 },
     minCoins: 2
   },
-  // Add more levels for progression
+  // Level 2
+  {
+    platforms: [
+      { x: 0, y: 400, width: 800, height: 50 },
+      { x: 100, y: 320, width: 120, height: 20 },
+      { x: 300, y: 260, width: 100, height: 20 },
+      { x: 500, y: 200, width: 150, height: 20 },
+      { x: 650, y: 340, width: 80, height: 20 }
+    ],
+    coins: [
+      { x: 120, y: 290, width: 20, height: 20, collected: false },
+      { x: 320, y: 230, width: 20, height: 20, collected: false },
+      { x: 520, y: 170, width: 20, height: 20, collected: false },
+      { x: 670, y: 310, width: 20, height: 20, collected: false },
+      { x: 700, y: 370, width: 20, height: 20, collected: false }
+    ],
+    enemies: [
+      { x: 120, y: 370, width: 40, height: 30, vx: 60, dir: 1, minX: 100, maxX: 300 },
+      { x: 520, y: 170, width: 40, height: 30, vx: 80, dir: 1, minX: 500, maxX: 650 }
+    ],
+    spikes: [
+      { x: 250, y: 380, width: 40, height: 20 },
+      { x: 600, y: 380, width: 40, height: 20 },
+      { x: 700, y: 320, width: 40, height: 20 }
+    ],
+    destination: { x: 750, y: 150, width: 40, height: 50 },
+    minCoins: 3
+  },
+  // Level 3
+  {
+    platforms: [
+      { x: 0, y: 400, width: 800, height: 50 },
+      { x: 80, y: 320, width: 80, height: 20 },
+      { x: 220, y: 260, width: 100, height: 20 },
+      { x: 400, y: 200, width: 120, height: 20 },
+      { x: 600, y: 140, width: 100, height: 20 },
+      { x: 700, y: 320, width: 60, height: 20 }
+    ],
+    coins: [
+      { x: 100, y: 290, width: 20, height: 20, collected: false },
+      { x: 240, y: 230, width: 20, height: 20, collected: false },
+      { x: 420, y: 170, width: 20, height: 20, collected: false },
+      { x: 620, y: 110, width: 20, height: 20, collected: false },
+      { x: 720, y: 290, width: 20, height: 20, collected: false },
+      { x: 750, y: 370, width: 20, height: 20, collected: false }
+    ],
+    enemies: [
+      { x: 100, y: 370, width: 40, height: 30, vx: 90, dir: 1, minX: 80, maxX: 220 },
+      { x: 420, y: 170, width: 40, height: 30, vx: 100, dir: 1, minX: 400, maxX: 520 },
+      { x: 700, y: 320, width: 40, height: 30, vx: 120, dir: 1, minX: 700, maxX: 760 }
+    ],
+    spikes: [
+      { x: 180, y: 380, width: 40, height: 20 },
+      { x: 350, y: 380, width: 40, height: 20 },
+      { x: 500, y: 380, width: 40, height: 20 },
+      { x: 700, y: 380, width: 40, height: 20 }
+    ],
+    destination: { x: 750, y: 90, width: 40, height: 50 },
+    minCoins: 4
+  }
 ];
+
+// --- Overlay Elements ---
+const levelCompleteOverlay = document.getElementById('levelCompleteOverlay');
+const levelCompleteMsg = document.getElementById('levelCompleteMsg');
+const nextLevelBtn = document.getElementById('nextLevelBtn');
+const gameOverOverlay = document.getElementById('gameOverOverlay');
+const restartBtn = document.getElementById('restartBtn');
+const gameWinOverlay = document.getElementById('gameWinOverlay');
+const playAgainBtn = document.getElementById('playAgainBtn');
+
+let gamePaused = false;
+
+function showOverlay(overlay) {
+  overlay.style.display = 'flex';
+  gamePaused = true;
+}
+function hideAllOverlays() {
+  levelCompleteOverlay.style.display = 'none';
+  gameOverOverlay.style.display = 'none';
+  gameWinOverlay.style.display = 'none';
+  gamePaused = false;
+}
 
 // --- Game State ---
 let currentLevel = 0;
 let coinsCollected = 0;
 let lives = 3;
 let player;
+let levelState;
+
+function deepCloneLevel(level) {
+  // Deep clone platforms, coins, enemies, spikes, and destination
+  return {
+    platforms: level.platforms.map(p => ({ ...p })),
+    coins: level.coins.map(c => ({ ...c })),
+    enemies: level.enemies.map(e => ({ ...e })),
+    spikes: (level.spikes || []).map(s => ({ ...s })),
+    destination: { ...level.destination },
+    minCoins: level.minCoins
+  };
+}
 
 function resetLevel() {
-  const level = levels[currentLevel];
+  // Deep clone the level so enemy state is not shared
+  levelState = deepCloneLevel(levels[currentLevel]);
+  // Ensure all enemies are moving and placed correctly
+  for (let enemy of levelState.enemies) {
+    if (enemy.dir !== 1 && enemy.dir !== -1) enemy.dir = 1;
+    if (!enemy.vx) enemy.vx = 50;
+    if (enemy.x < enemy.minX) enemy.x = enemy.minX;
+    if (enemy.x > enemy.maxX - enemy.width) enemy.x = enemy.maxX - enemy.width;
+  }
   player = new Player(50, 350);
-  for (let coin of level.coins) coin.collected = false;
+  for (let coin of levelState.coins) coin.collected = false;
   coinsCollected = 0;
   updateHUD();
 }
 
 function nextLevel() {
-  currentLevel++;
-  if (currentLevel >= levels.length) {
-    alert('You win!');
-    currentLevel = 0;
-    lives = 3;
+  if (currentLevel === levels.length - 1) {
+    // Finished last level
+    showOverlay(gameWinOverlay);
+    return;
   }
-  resetLevel();
+  currentLevel++;
+  showLevelComplete(currentLevel);
+}
+
+function showLevelComplete(levelIdx) {
+  levelCompleteMsg.textContent = `Level ${levelIdx} completed successfully!`;
+  showOverlay(levelCompleteOverlay);
 }
 
 function loseLife() {
   lives--;
   if (lives <= 0) {
-    alert('Game Over!');
+    showOverlay(gameOverOverlay);
     currentLevel = 0;
     lives = 3;
+    return;
   }
   resetLevel();
 }
@@ -163,12 +278,19 @@ function loseLife() {
 function updateHUD() {
   scoreEl.textContent = `Score: ${coinsCollected}`;
   levelEl.textContent = `Level: ${currentLevel + 1}`;
-  livesEl.textContent = `Lives: ${lives}`;
+  // Display hearts for lives
+  let hearts = '';
+  for (let i = 0; i < lives; i++) hearts += '❤️';
+  livesEl.textContent = `Lives: ${hearts}`;
 }
 
 // --- Game Loop ---
 let lastTime = 0;
 function gameLoop(timestamp) {
+  if (gamePaused) {
+    requestAnimationFrame(gameLoop);
+    return;
+  }
   const dt = (timestamp - lastTime) / 1000;
   lastTime = timestamp;
   update(dt);
@@ -177,7 +299,7 @@ function gameLoop(timestamp) {
 }
 
 function update(dt) {
-  const level = levels[currentLevel];
+  const level = levelState;
   player.update(dt, level.platforms);
 
   // Coin collection
@@ -192,9 +314,13 @@ function update(dt) {
   // Enemy movement and collision
   for (let enemy of level.enemies) {
     enemy.x += enemy.vx * enemy.dir * dt;
-    // Bounce enemy between platform edges
-    if (enemy.x < 400 || enemy.x + enemy.width > 760) enemy.dir *= -1;
+    if (enemy.x < enemy.minX || enemy.x + enemy.width > enemy.maxX) enemy.dir *= -1;
     if (isColliding(player, enemy)) loseLife();
+  }
+
+  // Spike collision
+  for (let spike of (level.spikes || [])) {
+    if (isColliding(player, spike)) loseLife();
   }
 
   // Destination check
@@ -208,12 +334,25 @@ function update(dt) {
 
 function render() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  const level = levels[currentLevel];
+  const level = levelState;
 
   // Draw platforms
   ctx.fillStyle = '#654321';
   for (let plat of level.platforms) {
     ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+  }
+
+  // Draw spikes
+  for (let spike of (level.spikes || [])) {
+    ctx.fillStyle = 'gray';
+    ctx.beginPath();
+    ctx.moveTo(spike.x, spike.y + spike.height);
+    ctx.lineTo(spike.x + spike.width / 2, spike.y);
+    ctx.lineTo(spike.x + spike.width, spike.y + spike.height);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = '#222';
+    ctx.stroke();
   }
 
   // Draw coins
@@ -232,17 +371,47 @@ function render() {
     ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
   }
 
-  // Draw destination
-  ctx.fillStyle = 'green';
+  // Draw destination as a door
   const dest = level.destination;
-  ctx.fillRect(dest.x, dest.y, dest.width, dest.height);
+  ctx.save();
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = 'green';
+  ctx.fillStyle = 'black';
+  ctx.beginPath();
+  ctx.rect(dest.x, dest.y, dest.width, dest.height);
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
 
   // Draw player
   player.draw(ctx);
 }
 
+// --- Overlay Button Events ---
+nextLevelBtn.onclick = function() {
+  hideAllOverlays();
+  resetLevel();
+};
+restartBtn.onclick = function() {
+  hideAllOverlays();
+  currentLevel = 0;
+  lives = 3;
+  resetLevel();
+};
+playAgainBtn.onclick = function() {
+  hideAllOverlays();
+  currentLevel = 0;
+  lives = 3;
+  resetLevel();
+};
+
 // --- Start Game ---
 window.onload = function() {
   resetLevel();
   requestAnimationFrame(gameLoop);
-}; 
+};
+
+// Add spikes on top of some platforms for all levels
+levels[0].spikes.push({ x: 220, y: 280, width: 40, height: 20 });
+levels[1].spikes.push({ x: 320, y: 240, width: 40, height: 20 }, { x: 670, y: 320, width: 40, height: 20 });
+levels[2].spikes.push({ x: 400, y: 180, width: 40, height: 20 }, { x: 700, y: 300, width: 40, height: 20 }); 

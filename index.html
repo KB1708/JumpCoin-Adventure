@@ -12,6 +12,19 @@
     <span id="lives">Lives: 3</span>
   </div>
   <canvas id="gameCanvas" width="800" height="450"></canvas>
+  <!-- Overlays -->
+  <div id="levelCompleteOverlay" class="overlay" style="display:none;">
+    <h2 id="levelCompleteMsg">Level 1 completed successfully!</h2>
+    <button id="nextLevelBtn">Next Level</button>
+  </div>
+  <div id="gameOverOverlay" class="overlay" style="display:none;">
+    <h2>Game Over <span style='font-size:2em;'>😢😔</span></h2>
+    <button id="restartBtn">Play Again</button>
+  </div>
+  <div id="gameWinOverlay" class="overlay" style="display:none;">
+    <h2>Congratulations! You finished the game! 🎉</h2>
+    <button id="playAgainBtn">Play Again</button>
+  </div>
   <script src="game.js"></script>
 </body>
 </html> 
