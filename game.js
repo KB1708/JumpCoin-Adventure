@@ -139,9 +139,10 @@ const levels = [
       { x: 650, y: 340, width: 80, height: 20 }
     ],
     coins: [
-      { x: 120, y: 290, width: 20, height: 20, collected: false },
+      { x: 100, y: 290, width: 20, height: 20, collected: false },
       { x: 320, y: 230, width: 20, height: 20, collected: false },
       { x: 520, y: 170, width: 20, height: 20, collected: false },
+      { x: 575, y: 190, width: 20, height: 20, collected: false },
       { x: 670, y: 310, width: 20, height: 20, collected: false },
       { x: 700, y: 370, width: 20, height: 20, collected: false }
     ],
@@ -150,9 +151,11 @@ const levels = [
       { x: 520, y: 170, width: 40, height: 30, vx: 80, dir: 1, minX: 500, maxX: 650 }
     ],
     spikes: [
-      { x: 250, y: 380, width: 40, height: 20 },
-      { x: 600, y: 380, width: 40, height: 20 },
-      { x: 700, y: 320, width: 40, height: 20 }
+      { x: 230, y: 380, width: 40, height: 20 },
+      { x: 150, y: 300, width: 40, height: 20 },
+      { x: 700, y: 320, width: 40, height: 20 },
+      { x: 320, y: 240, width: 40, height: 20 },
+      { x: 650, y: 320, width: 40, height: 20 }
     ],
     destination: { x: 750, y: 150, width: 40, height: 50 },
     minCoins: 3
@@ -388,6 +391,9 @@ function render() {
 }
 
 // --- Overlay Button Events ---
+function triggerButton(btn) {
+  if (btn && typeof btn.click === 'function') btn.click();
+}
 nextLevelBtn.onclick = function() {
   hideAllOverlays();
   resetLevel();
@@ -404,6 +410,14 @@ playAgainBtn.onclick = function() {
   lives = 3;
   resetLevel();
 };
+// Keyboard support for overlays
+window.addEventListener('keydown', function(e) {
+  if (gamePaused && (e.key === 'Enter' || e.code === 'Enter')) {
+    if (levelCompleteOverlay.style.display === 'flex') triggerButton(nextLevelBtn);
+    if (gameOverOverlay.style.display === 'flex') triggerButton(restartBtn);
+    if (gameWinOverlay.style.display === 'flex') triggerButton(playAgainBtn);
+  }
+});
 
 // --- Start Game ---
 window.onload = function() {
@@ -413,5 +427,20 @@ window.onload = function() {
 
 // Add spikes on top of some platforms for all levels
 levels[0].spikes.push({ x: 220, y: 280, width: 40, height: 20 });
-levels[1].spikes.push({ x: 320, y: 240, width: 40, height: 20 }, { x: 650, y: 320, width: 40, height: 20 });
-levels[2].spikes.push({ x: 400, y: 180, width: 40, height: 20 }, { x: 700, y: 300, width: 40, height: 20 }); 
+levels[1].spikes = levels[1].spikes.filter(s => !(s.x === 500 && s.y === 180) && !(s.x === 600 && s.y === 180));
+levels[2].spikes = [
+  { x: 180, y: 380, width: 40, height: 20 },
+  { x: 350, y: 380, width: 40, height: 20 },
+  { x: 500, y: 380, width: 40, height: 20 },
+  { x: 700, y: 380, width: 40, height: 20 },
+  { x: 400, y: 180, width: 40, height: 20 },
+  { x: 700, y: 300, width: 40, height: 20 }
+];
+levels[2].coins = [
+  { x: 100, y: 290, width: 20, height: 20, collected: false },
+  { x: 240, y: 230, width: 20, height: 20, collected: false },
+  { x: 420, y: 170, width: 20, height: 20, collected: false },
+  { x: 620, y: 110, width: 20, height: 20, collected: false },
+  { x: 720, y: 290, width: 20, height: 20, collected: false },
+  { x: 750, y: 370, width: 20, height: 20, collected: false }
+]; 
