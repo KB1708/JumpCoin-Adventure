@@ -1,6 +1,6 @@
 // Platformer Game Starter Code
 // Uses Canvas API, vanilla JS
-
+// Jumpcoin Adventure
 // --- Canvas Setup ---
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
