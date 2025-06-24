@@ -140,22 +140,18 @@ const levels = [
     ],
     coins: [
       { x: 100, y: 290, width: 20, height: 20, collected: false },
-      { x: 320, y: 230, width: 20, height: 20, collected: false },
-      { x: 520, y: 170, width: 20, height: 20, collected: false },
-      { x: 575, y: 190, width: 20, height: 20, collected: false },
-      { x: 670, y: 310, width: 20, height: 20, collected: false },
-      { x: 700, y: 370, width: 20, height: 20, collected: false }
+      { x: 380, y: 230, width: 20, height: 20, collected: false },
+      { x: 560, y: 170, width: 20, height: 20, collected: false },
+      { x: 680, y: 310, width: 20, height: 20, collected: false }
     ],
     enemies: [
-      { x: 120, y: 370, width: 40, height: 30, vx: 60, dir: 1, minX: 100, maxX: 300 },
+      { x: 120, y: 370, width: 40, height: 30, vx: 60, dir: 1, minX: 150, maxX: 600 },
       { x: 520, y: 170, width: 40, height: 30, vx: 80, dir: 1, minX: 500, maxX: 650 }
     ],
     spikes: [
-      { x: 230, y: 380, width: 40, height: 20 },
-      { x: 150, y: 300, width: 40, height: 20 },
-      { x: 700, y: 320, width: 40, height: 20 },
-      { x: 320, y: 240, width: 40, height: 20 },
-      { x: 650, y: 320, width: 40, height: 20 }
+      { x: 400, y: 380, width: 40, height: 20 },
+      { x: 135, y: 300, width: 40, height: 20 },
+      { x: 330, y: 240, width: 40, height: 20 }
     ],
     destination: { x: 750, y: 150, width: 40, height: 50 },
     minCoins: 3
@@ -167,30 +163,25 @@ const levels = [
       { x: 80, y: 320, width: 80, height: 20 },
       { x: 220, y: 260, width: 100, height: 20 },
       { x: 400, y: 200, width: 120, height: 20 },
-      { x: 600, y: 140, width: 100, height: 20 },
-      { x: 700, y: 320, width: 60, height: 20 }
+      { x: 600, y: 140, width: 100, height: 20 }
     ],
     coins: [
-      { x: 100, y: 290, width: 20, height: 20, collected: false },
-      { x: 240, y: 230, width: 20, height: 20, collected: false },
+      { x: 115, y: 290, width: 20, height: 20, collected: false },
+      { x: 260, y: 230, width: 20, height: 20, collected: false },
       { x: 420, y: 170, width: 20, height: 20, collected: false },
-      { x: 620, y: 110, width: 20, height: 20, collected: false },
-      { x: 720, y: 290, width: 20, height: 20, collected: false },
-      { x: 750, y: 370, width: 20, height: 20, collected: false }
+      { x: 650, y: 110, width: 20, height: 20, collected: false },
+      { x: 720, y: 370, width: 20, height: 20, collected: false }
     ],
     enemies: [
-      { x: 100, y: 370, width: 40, height: 30, vx: 90, dir: 1, minX: 80, maxX: 220 },
-      { x: 420, y: 170, width: 40, height: 30, vx: 100, dir: 1, minX: 400, maxX: 520 },
-      { x: 700, y: 320, width: 40, height: 30, vx: 120, dir: 1, minX: 700, maxX: 760 }
+      { x: 100, y: 370, width: 40, height: 30, vx: 90, dir: 1, minX: 150, maxX: 650 },
+      { x: 420, y: 170, width: 40, height: 30, vx: 100, dir: 1, minX: 400, maxX: 520 }
     ],
     spikes: [
-      { x: 180, y: 380, width: 40, height: 20 },
-      { x: 350, y: 380, width: 40, height: 20 },
-      { x: 500, y: 380, width: 40, height: 20 },
-      { x: 700, y: 380, width: 40, height: 20 }
+      { x: 400, y: 380, width: 40, height: 20 },
+      { x: 600, y: 380, width: 40, height: 20 }
     ],
     destination: { x: 750, y: 90, width: 40, height: 50 },
-    minCoins: 4
+    minCoins: 5
   }
 ];
 
@@ -241,7 +232,9 @@ function resetLevel() {
   // Ensure all enemies are moving and placed correctly
   for (let enemy of levelState.enemies) {
     if (enemy.dir !== 1 && enemy.dir !== -1) enemy.dir = 1;
-    if (!enemy.vx) enemy.vx = 50;
+    // Fix: Always set vx to the original value from the level definition
+    const origEnemy = (levels[currentLevel].enemies || []).find(e => e.x === enemy.x && e.y === enemy.y && e.width === enemy.width && e.height === enemy.height);
+    enemy.vx = origEnemy && origEnemy.vx ? origEnemy.vx : 50;
     if (enemy.x < enemy.minX) enemy.x = enemy.minX;
     if (enemy.x > enemy.maxX - enemy.width) enemy.x = enemy.maxX - enemy.width;
   }
@@ -285,6 +278,11 @@ function updateHUD() {
   let hearts = '';
   for (let i = 0; i < lives; i++) hearts += '❤️';
   livesEl.textContent = `Lives: ${hearts}`;
+  // Display minimum coins message
+  const minCoinsMsg = document.getElementById('minCoinsMsg');
+  if (minCoinsMsg && levelState && typeof levelState.minCoins === 'number') {
+    minCoinsMsg.innerHTML = `Collect At least <b>${levelState.minCoins}</b> coins 🪙`;
+  }
 }
 
 // --- Game Loop ---
@@ -429,18 +427,13 @@ window.onload = function() {
 levels[0].spikes.push({ x: 220, y: 280, width: 40, height: 20 });
 levels[1].spikes = levels[1].spikes.filter(s => !(s.x === 500 && s.y === 180) && !(s.x === 600 && s.y === 180));
 levels[2].spikes = [
-  { x: 180, y: 380, width: 40, height: 20 },
-  { x: 350, y: 380, width: 40, height: 20 },
-  { x: 500, y: 380, width: 40, height: 20 },
-  { x: 700, y: 380, width: 40, height: 20 },
-  { x: 400, y: 180, width: 40, height: 20 },
-  { x: 700, y: 300, width: 40, height: 20 }
+  { x: 400, y: 380, width: 40, height: 20 },
+  { x: 600, y: 380, width: 40, height: 20 }
 ];
 levels[2].coins = [
-  { x: 100, y: 290, width: 20, height: 20, collected: false },
-  { x: 240, y: 230, width: 20, height: 20, collected: false },
+  { x: 120, y: 290, width: 20, height: 20, collected: false },
+  { x: 260, y: 230, width: 20, height: 20, collected: false },
   { x: 420, y: 170, width: 20, height: 20, collected: false },
-  { x: 620, y: 110, width: 20, height: 20, collected: false },
-  { x: 720, y: 290, width: 20, height: 20, collected: false },
-  { x: 750, y: 370, width: 20, height: 20, collected: false }
+  { x: 640, y: 110, width: 20, height: 20, collected: false },
+  { x: 720, y: 370, width: 20, height: 20, collected: false }
 ]; 
