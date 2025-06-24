@@ -1,4 +1,4 @@
-# Platformer Game (Vanilla JS)
+# JumpCoin Adventure (Vanilla JS)
 
 A browser-based platformer game inspired by Super Mario, built with HTML, CSS, and JavaScript (Canvas API).
 
